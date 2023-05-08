@@ -1,5 +1,6 @@
 package com.maraquepo.edc.performance;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.maraquepo.edc.artist.Artist;
 import jakarta.persistence.*;
 
@@ -11,7 +12,8 @@ public class Performance {
     @Id
     @GeneratedValue
     private Integer id;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
     private Artist artist;
     private PerformanceDay performanceDay;
 
@@ -19,6 +21,9 @@ public class Performance {
     private LocalTime startTime;
     private LocalTime endtime;
 
+    public Performance() {
+
+    }
     public Performance(Integer id, Artist artist, PerformanceDay performanceDay, Stages stages, LocalTime startTime, LocalTime endtime) {
         this.id = id;
         this.artist = artist;

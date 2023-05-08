@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 public class ArtistJPAResource {
     private ArtistRepository repository;
 
@@ -30,14 +31,23 @@ public class ArtistJPAResource {
         return repository.findAll();
     }
 
+    @GetMapping("/api/v1/performances")
+    public List<Performance> retrieveAllPerformances() {
+        return performanceRepository.findAll();
+    }
+
+
+
     @GetMapping("/api/v1/artists/{id}")
-    public Artist getArtistById(@PathVariable Integer id) {
-        return service.getArtistById(id);
+    public Optional<Artist> getArtistById(@PathVariable Integer id) {
+        Optional<Artist> artist = repository.findById(id);
+
+        return artist;
     }
 
     @PostMapping("/api/v1/artists")
     public ResponseEntity<Artist> createArtist(@RequestBody Artist artist) {
-        Artist savedArtist = service.addArtist(artist);
+        Artist savedArtist = repository.save(artist);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedArtist.getId())
@@ -73,14 +83,8 @@ public class ArtistJPAResource {
         return ResponseEntity.created(location).build();
     }
 
-    @PatchMapping("/api/v1/artists/{artistId}/performances/{performanceId}")
-    public ResponseEntity<Object> updatePerformance(@PathVariable Integer artistId, @PathVariable Integer performanceId, @RequestBody Performance updatedPerformance) {
-        Optional<Artist> artist = repository.findById(artistId);
-
-        if (!artist.isPresent()) {
-            throw new ResourceNotFoundException("Artist not found with ID: " + artistId);
-        }
-
+    @PatchMapping("/api/v1/performances/{performanceId}")
+    public ResponseEntity<Object> updatePerformance(@PathVariable Integer performanceId, @RequestBody Performance updatedPerformance) {
         Optional<Performance> performanceOptional = performanceRepository.findById(performanceId);
 
         if (!performanceOptional.isPresent()) {
@@ -100,6 +104,17 @@ public class ArtistJPAResource {
         performanceRepository.save(performance);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/api/v1/performances/{performanceId}")
+    public ResponseEntity<Performance> getPerformanceById(@PathVariable Integer performanceId) {
+        Optional<Performance> performanceOptional = performanceRepository.findById(performanceId);
+        if (performanceOptional.isPresent()) {
+            Performance performance = performanceOptional.get();
+            return ResponseEntity.ok(performance);
+        } else {
+            throw new ResourceNotFoundException("Performance not found with ID: " + performanceId);
+        }
     }
 
 }

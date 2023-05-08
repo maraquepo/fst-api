@@ -1,11 +1,10 @@
 package com.maraquepo.edc.artist;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.maraquepo.edc.performance.Performance;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,12 +13,17 @@ public class Artist {
 
     }
     @Id
-    @GeneratedValue
+    @SequenceGenerator(
+            name = "artist_sequence",
+            sequenceName = "artist_sequence",
+            allocationSize = 1
+    )
     private Integer id;
     private String name;
 
-    @OneToMany(mappedBy = "artist")
-    private List<Performance> performances;
+    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Performance> performances = new ArrayList<>();
 
     public Artist(Integer id, String name, List<Performance> performances) {
         this.id = id;
